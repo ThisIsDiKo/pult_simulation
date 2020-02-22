@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from serialTread import ComMonitorThread
 import serial.tools.list_ports_windows as comPortList
 import queue
@@ -15,6 +16,9 @@ class ComboBox(QComboBox):
 class MainWindow(QWidget):
     def __init__(self):
         QWidget.__init__(self)
+
+        __BUTTON_SIZE = 50
+
 
         self.askTimer_delay = 500
         self.controllerId = 35031
@@ -42,33 +46,50 @@ class MainWindow(QWidget):
 
 
         self.cboxView = QComboBox()
-        self.cboxView.addItems(["2",
-                                "3",
-                                "4",
-                                "5",
-                                "6"
+        self.cboxView.addItems(["ВИД 2+2",
+                                "ВИД 2+1",
+                                "ВИД 1+2",
+                                "ВИД 1+1",
+                                "ВИД 0+2"
                                 ])
 
         self.cboxType = QComboBox()
-        self.cboxType.addItems(["0",
-                                "1"
+        self.cboxType.addItems(["РЕСИВЕР",
+                                "КОМПРЕССОР"
                                 ])
 
         self.lblPress_1 = QLabel("-----")
-        self.btnUp_1 = QPushButton("ВВЕРХ")
-        self.btnDown_1 = QPushButton("ВНИЗ")
+        self.btnUp_1 = QPushButton()
+        self.btnUp_1.setIcon(QIcon('./assets/up.png'))
+        self.btnUp_1.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
+        self.btnDown_1 = QPushButton()
+        self.btnDown_1.setIcon(QIcon('./assets/down.png'))
+        self.btnDown_1.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
 
         self.lblPress_2 = QLabel("-----")
-        self.btnUp_2 = QPushButton("ВВЕРХ")
-        self.btnDown_2 = QPushButton("ВНИЗ")
+        self.btnUp_2 = QPushButton()
+        self.btnUp_2.setIcon(QIcon('./assets/up.png'))
+        self.btnUp_2.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
+        self.btnDown_2 = QPushButton()
+        self.btnDown_2.setIcon(QIcon('./assets/down.png'))
+        self.btnDown_2.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
 
         self.lblPress_3 = QLabel("-----")
-        self.btnUp_3 = QPushButton("ВВЕРХ")
-        self.btnDown_3 = QPushButton("ВНИЗ")
+        self.btnUp_3 = QPushButton()
+        self.btnUp_3.setIcon(QIcon('./assets/up.png'))
+        self.btnUp_3.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
+        self.btnDown_3 = QPushButton()
+        self.btnDown_3.setIcon(QIcon('./assets/down.png'))
+        self.btnDown_3.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
 
         self.lblPress_4 = QLabel("-----")
-        self.btnUp_4 = QPushButton("ВВЕРХ")
-        self.btnDown_4 = QPushButton("ВНИЗ")
+        self.btnUp_4 = QPushButton()
+        self.btnUp_4.setIcon(QIcon('./assets/up.png'))
+        self.btnUp_4.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
+        self.btnDown_4 = QPushButton()
+        self.btnDown_4.setIcon(QIcon('./assets/down.png'))
+        self.btnDown_4.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
+
 
         self.lblStatus = QLabel("Статус")
 
@@ -81,47 +102,60 @@ class MainWindow(QWidget):
         self.btnStopPreset = QPushButton("Остановить пресет")
         self.btnStopPreset.clicked.connect(self.btnStopPreset_clicked)
 
+        self.txtMessages = QTextEdit()
+
+
         self.gridL = QGridLayout()
+        self.connectionLayout = QHBoxLayout()
+        self.timersLayout = QHBoxLayout()
+        self.presetLayout = QHBoxLayout()
+        self.mainLayout = QVBoxLayout()
 
-        self.gridL.addWidget(self.cboxComPort,  0, 0, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(QLabel("ID:"),     0, 1, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.txtId,        0, 2, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.cboxView,     0, 3, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.cboxType,     0, 4, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnConnect,   0, 7, 1, 2, Qt.AlignCenter)
+        self.connectionLayout.addWidget(self.cboxComPort)
+        self.connectionLayout.addWidget(QLabel("ID:"))
+        self.connectionLayout.addWidget(self.txtId)
+        self.connectionLayout.addWidget(self.cboxView)
+        self.connectionLayout.addWidget(self.cboxType)
+        self.connectionLayout.addWidget(self.btnConnect)
 
-        self.gridL.addWidget(QLabel("Период опроса"),   1, 0, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.txtTimerPeriod,       1, 1, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnStartTimer,        1, 2, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnStopTimer,          1, 3, 1, 1, Qt.AlignCenter)
+        self.timersLayout.addWidget(QLabel("Период опроса"))
+        self.timersLayout.addWidget(self.txtTimerPeriod)
+        self.timersLayout.addWidget(self.btnStartTimer)
+        self.timersLayout.addWidget(self.btnStopTimer)
 
-        self.gridL.addWidget(self.lblPress_1,   2, 1, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnUp_1,      3, 1, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnDown_1,    4, 1, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.lblPress_1,   0, 0, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnUp_1,      1, 0, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnDown_1,    2, 0, 1, 1, Qt.AlignCenter)
 
-        self.gridL.addWidget(self.lblPress_2,   2, 3, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnUp_2,      3, 3, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnDown_2,    4, 3, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.lblPress_2,   0, 1, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnUp_2,      1, 1, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnDown_2,    2, 1, 1, 1, Qt.AlignCenter)
 
-        self.gridL.addWidget(self.lblPress_3,   2, 5, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnUp_3,      3, 5, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnDown_3,    4, 5, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.lblPress_3,   0, 2, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnUp_3,      1, 2, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnDown_3,    2, 2, 1, 1, Qt.AlignCenter)
 
-        self.gridL.addWidget(self.lblPress_4,   2, 7, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnUp_4,      3, 7, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnDown_4,    4, 7, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.lblPress_4,   0, 3, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnUp_4,      1, 3, 1, 1, Qt.AlignCenter)
+        self.gridL.addWidget(self.btnDown_4,    2, 3, 1, 1, Qt.AlignCenter)
 
-        self.gridL.addWidget(QLabel("Предустановка"),   5, 0, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.txtNessPos1,          5, 1, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.txtNessPos2,          5, 2, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.txtNessPos3,          5, 3, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.txtNessPos4,          5, 4, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnSendPreset,        5, 5, 1, 1, Qt.AlignCenter)
-        self.gridL.addWidget(self.btnStopPreset,        5, 6, 1, 1, Qt.AlignCenter)
+        self.presetLayout.addWidget(QLabel("Предустановка"))
+        self.presetLayout.addWidget(self.txtNessPos1)
+        self.presetLayout.addWidget(self.txtNessPos2)
+        self.presetLayout.addWidget(self.txtNessPos3)
+        self.presetLayout.addWidget(self.txtNessPos4)
+        self.presetLayout.addWidget(self.btnSendPreset)
+        self.presetLayout.addWidget(self.btnStopPreset)
 
-        self.gridL.addWidget(self.lblStatus,    6, 0, 1, 1, Qt.AlignCenter)
 
-        self.setLayout(self.gridL)
+        self.mainLayout.addLayout(self.connectionLayout)
+        self.mainLayout.addLayout(self.timersLayout)
+        self.mainLayout.addLayout(self.gridL)
+        self.mainLayout.addLayout(self.presetLayout)
+        self.mainLayout.addWidget(self.txtMessages)
+        self.mainLayout.addWidget(self.lblStatus, Qt.AlignLeft)
+
+        self.setLayout(self.mainLayout)
         self.setWindowTitle("СИМУЛЯТОР")
         self.show()
 
@@ -164,6 +198,10 @@ class MainWindow(QWidget):
     def check_buffer(self):
         try:
             s = self.stringIO_q.get(block=False, timeout=None)
+
+            self.txtMessages.moveCursor(QTextCursor.End)
+            self.txtMessages.insertPlainText(s)
+
             data = s.split(',')
 
             if data[0] == 'm':
@@ -219,15 +257,37 @@ class MainWindow(QWidget):
         print("Message is: " + sendMsg, end="")
 
         if self.monitor is not None:
+            self.txtMessages.moveCursor(QTextCursor.End)
+            self.txtMessages.insertPlainText(">> " + sendMsg)
             self.monitor.send(sendMsg)
         self.askTimer.start(self.askTimer_delay)
 
     def onclick_connect(self):
         portName = self.cboxComPort.currentText()
         portBaud = 19200
-        self.controllerId = int(self.txtId.text())
-        self.view = int(self.cboxView.currentText())
-        self.type = int(self.cboxType.currentText())
+
+        try:
+            self.controllerId = int(self.txtId.text())
+        except:
+            self.controllerId = 35031
+
+        #self.view = int(self.cboxView.currentText())
+        if self.cboxView.currentText() == "ВИД 2+2":
+            self.view = 6
+        elif self.cboxView.currentText() == "ВИД 2+1":
+            self.view = 5
+        elif self.cboxView.currentText() == "ВИД 1+2":
+            self.view = 4
+        elif self.cboxView.currentText() == "ВИД 1+1":
+            self.view = 3
+        elif self.cboxView.currentText() == "ВИД 0+2":
+            self.view = 2
+
+        #self.type = int(self.cboxType.currentText())
+        if self.cboxType.currentText() == "РЕСИВЕР":
+            self.type = 0
+        elif self.cboxType.currentText() == "КОМПРЕССОР":
+            self.type = 1
 
         if self.monitor is None:
             self.monitor = ComMonitorThread(self.stringIO_q,
