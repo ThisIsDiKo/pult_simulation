@@ -185,8 +185,31 @@ class MainWindow(QWidget):
         self.nessPos[2] = int(self.txtNessPos1.text())
         self.nessPos[3] = int(self.txtNessPos1.text())
 
+
+        if not self.askTimer.isActive():
+            sendMsg = "s,%05d,%d,%d,%d,%d,%d,%d,%d,\n" % (self.controllerId,
+                                                          self.nessPos[0],
+                                                          self.nessPos[1],
+                                                          self.nessPos[2],
+                                                          self.nessPos[3],
+                                                          self.view,
+                                                          self.type,
+                                                          0)
+            self.messageType = "measure"
+            if self.monitor is not None:
+                self.txtMessages.moveCursor(QTextCursor.End)
+                self.txtMessages.insertPlainText(">> " + sendMsg)
+                self.monitor.send(sendMsg)
+
     def btnStopPreset_clicked(self):
         self.messageType = "stop_preset"
+        if not self.askTimer.isActive():
+            sendMsg = "sx,%d,\n" % self.controllerId
+            self.messageType = "measure"
+            if self.monitor is not None:
+                self.txtMessages.moveCursor(QTextCursor.End)
+                self.txtMessages.insertPlainText(">> " + sendMsg)
+                self.monitor.send(sendMsg)
 
     def btnStartTimer_clicked(self):
         try:
@@ -198,6 +221,19 @@ class MainWindow(QWidget):
     def btnStopTimer_clicked(self):
         self.askTimer.stop()
 
+    def calc_pressure(self, val):
+        k = 20.0 / (3350.0 - 372.0);
+        b = 20.0 - k * 3350.0;
+        if val == 0:
+            return -1.0
+        else:
+            pressure = k * val + b
+            pressure = pressure * 1.01325
+            if pressure > 20.0:
+                pressure = 20.0
+            elif pressure < 0.0:
+                pressure = 0.0
+            return pressure
 
     def check_buffer(self):
         try:
@@ -209,7 +245,7 @@ class MainWindow(QWidget):
             data = s.split(',')
 
             if data[0] == 'm':
-                self.lblPress_1.setText(data[2])
+                self.lblPress_1.setText("%0.1f (%s)" % (self.calc_pressure(int(data[2])), data[2]))
                 self.lblPress_2.setText(data[3])
                 self.lblPress_3.setText(data[4])
                 self.lblPress_4.setText(data[5])
@@ -258,7 +294,7 @@ class MainWindow(QWidget):
                                                           0)
             self.messageType = "measure"
 
-        print("Message is: " + sendMsg, end="")
+        #print("Message is: " + sendMsg, end="")
 
         if self.monitor is not None:
             self.txtMessages.moveCursor(QTextCursor.End)
