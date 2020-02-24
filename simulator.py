@@ -90,6 +90,10 @@ class MainWindow(QWidget):
         self.btnDown_4.setIcon(QIcon('./assets/down.png'))
         self.btnDown_4.setIconSize(QSize(__BUTTON_SIZE, __BUTTON_SIZE))
 
+        self.lblPress_1.setStyleSheet('font-size: 24px;')
+        self.lblPress_2.setStyleSheet('font-size: 24px;')
+        self.lblPress_3.setStyleSheet('font-size: 24px;')
+        self.lblPress_4.setStyleSheet('font-size: 24px;')
 
         self.lblStatus = QLabel("Статус")
 
