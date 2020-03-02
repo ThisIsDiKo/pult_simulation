@@ -257,6 +257,9 @@ class MainWindow(QWidget):
         valveStat = 0
         self.askTimer.stop()
 
+        if self.btnDown_4.isDown():
+            valveStat = 0b10000000
+
         if self.btnUp_1.isDown():
             valveStat |= 0x01
         if self.btnDown_1.isDown():
@@ -274,8 +277,9 @@ class MainWindow(QWidget):
 
         if self.btnUp_4.isDown():
             valveStat |= 0b01000000
-        if self.btnDown_4.isDown():
-            valveStat |= 0b10000000
+
+
+        print("valve stat is " + bin(valveStat))
 
 
         if self.messageType == "measure":
@@ -294,7 +298,10 @@ class MainWindow(QWidget):
                                                           0)
             self.messageType = "measure"
 
-        #print("Message is: " + sendMsg, end="")
+        print("Message is: " + sendMsg, end="")
+        for i in sendMsg:
+            print(i.encode('utf-8').hex(), end=" ")
+        print()
 
         if self.monitor is not None:
             self.txtMessages.moveCursor(QTextCursor.End)
