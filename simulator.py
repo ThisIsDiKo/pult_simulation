@@ -181,9 +181,9 @@ class MainWindow(QWidget):
     def btnSendPreset_clicked(self):
         self.messageType = "send_preset"
         self.nessPos[0] = int(self.txtNessPos1.text())
-        self.nessPos[1] = int(self.txtNessPos1.text())
-        self.nessPos[2] = int(self.txtNessPos1.text())
-        self.nessPos[3] = int(self.txtNessPos1.text())
+        self.nessPos[1] = int(self.txtNessPos2.text())
+        self.nessPos[2] = int(self.txtNessPos3.text())
+        self.nessPos[3] = int(self.txtNessPos4.text())
 
 
         if not self.askTimer.isActive():
@@ -192,14 +192,16 @@ class MainWindow(QWidget):
                                                           self.nessPos[1],
                                                           self.nessPos[2],
                                                           self.nessPos[3],
-                                                          self.view,
                                                           self.type,
+                                                          self.view,
                                                           0)
             self.messageType = "measure"
             if self.monitor is not None:
                 self.txtMessages.moveCursor(QTextCursor.End)
                 self.txtMessages.insertPlainText(">> " + sendMsg)
-                self.monitor.send(sendMsg)
+
+                msgBytes = bytes(sendMsg, 'utf-8')
+                self.monitor.send(msgBytes)
 
     def btnStopPreset_clicked(self):
         self.messageType = "stop_preset"
@@ -209,7 +211,9 @@ class MainWindow(QWidget):
             if self.monitor is not None:
                 self.txtMessages.moveCursor(QTextCursor.End)
                 self.txtMessages.insertPlainText(">> " + sendMsg)
-                self.monitor.send(sendMsg)
+
+                msgBytes = bytes(sendMsg, 'utf-8')
+                self.monitor.send(msgBytes)
 
     def btnStartTimer_clicked(self):
         try:
@@ -246,9 +250,9 @@ class MainWindow(QWidget):
 
             if data[0] == 'm':
                 self.lblPress_1.setText("%0.1f (%s)" % (self.calc_pressure(int(data[2])), data[2]))
-                self.lblPress_2.setText(data[3])
-                self.lblPress_3.setText(data[4])
-                self.lblPress_4.setText(data[5])
+                self.lblPress_2.setText("%0.1f (%s)" % (self.calc_pressure(int(data[3])), data[3]))
+                self.lblPress_3.setText("%0.1f (%s)" % (self.calc_pressure(int(data[4])), data[4]))
+                self.lblPress_4.setText("%0.1f (%s)" % (self.calc_pressure(int(data[5])), data[5]))
         except:
             pass
 
@@ -279,13 +283,17 @@ class MainWindow(QWidget):
             valveStat |= 0b01000000
 
 
-        print("valve stat is " + bin(valveStat))
-
+        msgBytes = None
 
         if self.messageType == "measure":
             sendMsg = "m,%d,%d,%c,\n" % (self.controllerId, self.view, chr(valveStat))
+            part1 = bytes("m,%d,%d," % (self.controllerId, self.view), 'utf-8')
+            part2 = bytes([valveStat])
+            part3 = bytes(",\n", 'utf-8')
+            msgBytes = part1 + part2 + part3
         elif self.messageType == "stop_preset":
             sendMsg = "sx,%d,\n" % self.controllerId
+            msgBytes = bytes(sendMsg, 'utf-8')
             self.messageType = "measure"
         elif self.messageType == "send_preset":
             sendMsg = "s,%05d,%d,%d,%d,%d,%d,%d,%d,\n" % (self.controllerId,
@@ -296,17 +304,15 @@ class MainWindow(QWidget):
                                                           self.view,
                                                           self.type,
                                                           0)
+            msgBytes = bytes(sendMsg, 'utf-8')
             self.messageType = "measure"
 
-        print("Message is: " + sendMsg, end="")
-        for i in sendMsg:
-            print(i.encode('utf-8').hex(), end=" ")
-        print()
+        #print("Message is: " + msgBytes)
 
         if self.monitor is not None:
             self.txtMessages.moveCursor(QTextCursor.End)
             self.txtMessages.insertPlainText(">> " + sendMsg)
-            self.monitor.send(sendMsg)
+            self.monitor.send(msgBytes)
         self.askTimer.start(self.askTimer_delay)
 
     def onclick_connect(self):

@@ -44,14 +44,17 @@ class ComMonitorThread(threading.Thread):
             return
 
         while self.running:
-            new_data = self.serial_port.read(1).decode('utf-8')
-            if new_data:
-                if new_data == "\n":
-                    msg += new_data
-                    self.stringIO_q.put(msg)
-                    msg = ""
-                else:
-                    msg += new_data
+            try:
+                new_data = self.serial_port.read(1).decode('utf-8')
+                if new_data:
+                    if new_data == "\n":
+                        msg += new_data
+                        self.stringIO_q.put(msg)
+                        msg = ""
+                    else:
+                        msg += new_data
+            except:
+                print("unexpected byte")
 
         if self.serial_port:
             self.serial_port.close()
@@ -63,7 +66,8 @@ class ComMonitorThread(threading.Thread):
 
     def send(self, msg):
         if self.serial_port:
-            self.serial_port.write(msg.encode('utf-8'))
+            #self.serial_port.write(msg.encode('utf-8'))
+            self.serial_port.write(msg)
 
     def stop(self):
         self.runing = False
